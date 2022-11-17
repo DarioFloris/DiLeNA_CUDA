@@ -1,6 +1,10 @@
+blockchain_explorer/__pycache__/
+blockchain_analyser/__pycache__/
+graphs/
+.vscode
 blockchain_explorer/.env
 notebooks/dask_CPU.ipynb
 
-graphs/
-.vscode
-blockchain_explorer/__pycache__
+
+git_instructions.txt
+
