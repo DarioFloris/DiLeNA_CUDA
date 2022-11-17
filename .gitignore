@@ -3,3 +3,4 @@ notebooks/dask_CPU.ipynb
 
 graphs/
 .vscode
+blockchain_explorer/__pycache__
