@@ -127,7 +127,7 @@ def avg_clustering_coefficient(
     df_degree,
     N,
     nodes_cp=None,
-    is_directed=False
+    undirected=False
 
 ) -> float:
 
@@ -136,7 +136,6 @@ def avg_clustering_coefficient(
     M = compute_bounds(n, N, cp.dtype(cp.int32).itemsize)
     epochs = ceil(n / M)
     leftovers = n % M
-    epoch = 1
      
     for i in range(1, epochs+1):  
         start, stop, M = init_cc(n, M, i, leftovers)
@@ -145,6 +144,7 @@ def avg_clustering_coefficient(
         matrix = cp.empty((M, N), dtype='int32')
         matrix.fill(-1)
         edgespernode = cp.zeros(M, dtype='int32')
+        reciprocal = cp.zeros(M, dtype='int32')
         start_ev = cuda.event()
         stop_ev = cuda.event()
 
@@ -155,28 +155,21 @@ def avg_clustering_coefficient(
         blockspergrid_y = (M + (threadsperblock_2D[0] - 1)) // threadsperblock_2D[0]
         blockspergrid_2D = (blockspergrid_x, blockspergrid_y)
 
-        if is_directed:
-            reciprocal = cp.zeros(M, dtype='int32')
-            start_ev.record()
-            CUDA.directed_adj_list[blockspergrid, threadsperblock](nodes, src, dst, matrix)
-            CUDA.reciprocal_count[blockspergrid_2D, threadsperblock_2D](matrix, nodes, src, dst, M, N, reciprocal)
-            CUDA.directed_ngbr_edges[blockspergrid_2D, threadsperblock_2D](matrix, src, dst, M, N, edgespernode)       
-            CUDA.lcc_directed[blockspergrid, threadsperblock](nodes, edgespernode, df_degree, reciprocal, local_ccs)
-            stop_ev.record()
-            cuda.synchronize()
 
-        else:
-            start_ev.record()
-            CUDA.undirected_adj_list[blockspergrid, threadsperblock](nodes, src, dst, matrix)
-            CUDA.undirected_ngbr_edges[blockspergrid_2D, threadsperblock_2D](matrix, src, dst, M, N, edgespernode)
-            CUDA.lcc_undirected[blockspergrid, threadsperblock](nodes, edgespernode, df_degree['degree'], local_ccs)
-            stop_ev.record()
-            cuda.synchronize()
-            
+
+        start_ev.record()
+        CUDA.adj_list[blockspergrid, threadsperblock](nodes, src, dst, undirected, matrix)
+        CUDA.reciprocal_count[blockspergrid_2D, threadsperblock_2D](matrix, nodes, src, dst, M, N, reciprocal)
+        CUDA.find_uv_edges[blockspergrid_2D, threadsperblock_2D](matrix, src, dst, M, N, undirected, edgespernode)       
+        CUDA.lcc[blockspergrid, threadsperblock](nodes, edgespernode, df_degree, reciprocal, undirected, local_ccs)
+        stop_ev.record()
+        cuda.synchronize()
 
     elapsed_t = (cuda.event_elapsed_time(start_ev, stop_ev) / 1000) / 60
-    logger.log('Average clustering coefficient calculcated. Elapsed time: %.6f minutes' % elapsed_t)
-    return local_ccs[0].get() / n
+    result = local_ccs[0].get() / n
+    logger.log(f'Average clustering coefficient calculcated. {result}')
+    logger.log('Elapsed time: %.6f minutes' % elapsed_t)
+    return result
 
 
 def random_graph_generator(n, edges) -> cudf.DataFrame:

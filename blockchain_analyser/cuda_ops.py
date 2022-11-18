@@ -15,34 +15,22 @@ def compute_degree_distribution(n, count, percentage):
         percentage[i] = (count[i] / n) * 100
 
 @cuda.jit
-def undirected_adj_list(nodes, src, dst, out):
+def adj_list(nodes, src, dst, undirected, out):
     tx = cuda.threadIdx.x
     bx = cuda.blockIdx.x
     dx = cuda.blockDim.x
     tid = dx * bx + tx
     pos = 0
     if tid < len(nodes):
+        u_node = nodes[tid]
         for j in range(len(src)):
-            if nodes[tid] == src[j]:
+            if u_node == src[j]:
                 out[tid, pos] = dst[j]
                 pos += 1
-            elif nodes[tid] == dst[j]:
-                out[tid, pos] = src[j]
-                pos += 1   
-
-@cuda.jit
-def directed_adj_list(nodes, src, dst, out):
-    tx = cuda.threadIdx.x
-    bx = cuda.blockIdx.x
-    dx = cuda.blockDim.x
-    tid = dx * bx + tx
-    pos = 0
-    if tid < len(nodes):
-        node = nodes[tid]
-        for j in range(len(src)):
-            if node == src[j]:
-                out[tid, pos] = dst[j]
-                pos += 1
+            if undirected:
+                if u_node == dst[j]:
+                    out[tid, pos] = src[j]
+                    pos += 1
 
 @cuda.jit
 def reciprocal_count(A, nodes, src, dst, M, N, out):
@@ -53,33 +41,15 @@ def reciprocal_count(A, nodes, src, dst, M, N, out):
     column = dx * bx + tx
     
     if row < M and column < N and A[row, column] != -1:
-        ngbr = A[row, column]
-        node = nodes[row]
+        v_node = A[row, column]
+        u_node = nodes[row]
         for j in range(len(src)):
-            if ngbr == src[j] and node == dst[j]:
+            if v_node == src[j] and u_node == dst[j]:
                 cuda.atomic.add(out, row, 1)
-                  
-@cuda.jit
-def undirected_ngbr_edges(A, src, dst, M, N, out):
-    ty = cuda.threadIdx.y; tx = cuda.threadIdx.x
-    by = cuda.blockIdx.y; bx = cuda.blockIdx.x
-    dy = cuda.blockDim.y; dx = cuda.blockDim.x
-    row = dy * by + ty
-    column = dx * bx + tx
 
-    if row < M and column < N:
-        ngbr = A[row, column]
-        for j in range(N):
-            second_ngbr = A[row, j]
-            if ngbr != -1 and second_ngbr != -1 and ngbr != second_ngbr:
-                for k in range(len(src)):
-                    if ngbr == src[k] and second_ngbr == dst[k]:
-                        cuda.atomic.add(out, row, 1)
-                    elif ngbr == dst[k] and second_ngbr == src[k]:
-                        cuda.atomic.add(out, row, 1)
 
 @cuda.jit
-def directed_ngbr_edges(A, src, dst, M, N, out):
+def find_uv_edges(A, src, dst, M, N, undirected, out):
     ty = cuda.threadIdx.y; tx = cuda.threadIdx.x
     by = cuda.blockIdx.y; bx = cuda.blockIdx.x
     dy = cuda.blockDim.y; dx = cuda.blockDim.x
@@ -87,38 +57,42 @@ def directed_ngbr_edges(A, src, dst, M, N, out):
     column = dx * bx + tx
     
     if row < M and column < N and A[row, column] != -1:
-        ngbr = A[row, column]
-        j = 0
-        while j < N:
-            second_ngbr = A[row, j]
-            if A[row, j] != -1 and ngbr != second_ngbr:
-                k = 0
-                while k < len(src):
-                    if ngbr == src[k] and second_ngbr == dst[k]:
-                        cuda.atomic.add(out, row, 1)
-                    k += 1
-            j += 1
+        u_node = A[row, column]
+        for j in range(N):
+            v_node = A[row, j]
+            if v_node != -1 and u_node != v_node:
+                common = explore_edges(u_node, v_node, src, dst)
+                cuda.atomic.add(out, row, common)
+                if undirected:
+                    common = explore_edges(v_node, u_node, src, dst)
+                    cuda.atomic.add(out, row, common)
+#            j += 1
+
+
+@cuda.jit(device=True)
+def explore_edges(u, v, src, dst):
+    result, k = 0, 0
+    while k < src.size:
+        if u == src[k] and v == dst[k]:
+            result += 1
+        k += 1
+
+    return result
+
 
 @cuda.jit
-def lcc_directed(nodes, edges, df_degree, recip, lcc_array):
+def lcc(nodes, edges, df_degree, recip, undirected, lcc_array):
     tid = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
     if tid < len(nodes):
         lcc = 0.0
         item = edges[tid]
         if item > 0:
             node_deg = df_degree[tid]
-            lcc = item / (node_deg * (node_deg - 1) - (2 * recip[tid]))
-        cuda.atomic.add(lcc_array, 0, lcc)
+            if undirected:
+                lcc = item / (node_deg * (node_deg - 1))
+            else:
+                lcc = item / (node_deg * (node_deg - 1) - (2 * recip[tid]))
 
-@cuda.jit
-def lcc_undirected(nodes, edges, df_degree, lcc_array):
-    tid = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
-    if tid < len(nodes):
-        lcc = 0.0
-        item = edges[tid]
-        if item > 0:
-            node_deg = df_degree[tid]
-            lcc = item / (node_deg * (node_deg - 1))
         cuda.atomic.add(lcc_array, 0, lcc)
 
 @cuda.jit

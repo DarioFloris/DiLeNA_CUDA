@@ -105,7 +105,7 @@ if __name__ == '__main__':
         edges['dst'], 
         df_total_deg['degree'], 
         N, 
-        is_directed=True
+        undirected=False
     )
 
 #   MAIN COMPONENT
@@ -137,7 +137,7 @@ if __name__ == '__main__':
         df_total_deg_mc['degree'], 
         N,
         nodes_cp=vertices_mc, 
-        is_directed=True
+        undirected=False
     )
 
 
@@ -166,7 +166,7 @@ if __name__ == '__main__':
         edges_rnd['dst'], 
         df_tot_deg_rnd['degree'], 
         N, 
-        is_directed=True
+        undirected=False
     ) 
 
 #   RANDOM GRAPH's MAIN COMPONENT
@@ -196,7 +196,7 @@ if __name__ == '__main__':
         df_in_deg_rnd_mc['degree'],
         N,
         nodes_cp=vertices_rnd_mc,
-        is_directed=True
+        undirected=False
     )
 
     #TODO logger file creation
