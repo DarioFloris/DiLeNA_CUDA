@@ -173,6 +173,7 @@ def avg_clustering_coefficient(
 
 
 def random_graph_generator(n, edges) -> cudf.DataFrame:
+    logger.log(f'Generating random graph with ER model...')
     L = Graph(directed=True)
     df = cudf.DataFrame({'src': None, 'dst': None})
     p = edges / (n * (n - 1))

@@ -173,7 +173,7 @@ if __name__ == '__main__':
     edges_rnd_mc = ops.build_main_weakly_connected_component_edges(G_rnd, edges_rnd)
     analysis_rnd_mc = Analysis(direction=True)
     G_rnd_mc = analysis_rnd_mc.get_graph()
-    ops.build_graph(G_rnd_mc, edges_rnd_mc, edge_attr=None, renumber=False)
+    ops.build_graph(G_rnd_mc, edges_rnd_mc, edge_attr=None, renumber=True)
 
     vertex_number_rnd_mc = ops.number_of_vertices(G_rnd_mc)
     edges_number_rnd_mc = ops.number_of_edges(G_rnd_mc)
@@ -183,7 +183,6 @@ if __name__ == '__main__':
     df_out_deg_rnd_mc = ops.degree(G_rnd_mc, 'out')
 
     vertices_rnd_mc = ops.nodes(G_rnd_mc)
-
     df_tot_rnd_mc = ops.degree_distribution(vertex_number_rnd_mc, df_total_deg_rnd_mc, mode='tot')
     df_in_rnd_mc = ops.degree_distribution(vertex_number_rnd_mc, df_in_deg_rnd_mc, mode='in')
     df_out_rnd_mc = ops.degree_distribution(vertex_number_rnd_mc, df_out_deg_rnd_mc, mode='out')
@@ -193,11 +192,11 @@ if __name__ == '__main__':
         vertex_number_rnd_mc, 
         edges_rnd_mc['src'], 
         edges_rnd_mc['dst'],
-        df_in_deg_rnd_mc['degree'],
+        df_total_deg_rnd_mc['degree'],
         N,
         nodes_cp=vertices_rnd_mc,
         undirected=False
     )
-
+    
     #TODO logger file creation
     #TODO json file creation containing analysis results
