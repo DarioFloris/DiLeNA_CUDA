@@ -25,8 +25,8 @@ def build_graph(
     source='src',
     destination='dst',
     edge_attr='wt',
-    renumber=False,
-    store_transposed=True
+    renumber=True,
+    store_transposed=False
 ) -> Graph:
 
     graph.from_cudf_edgelist(edges, source, destination, edge_attr, renumber, 

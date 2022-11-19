@@ -82,7 +82,7 @@ if __name__ == '__main__':
     analysis_ = Analysis(direction=True)
     G = analysis_.get_graph()
     edges = ops.load_data(path_to_file)
-    ops.build_graph(G, edges)
+    ops.build_graph(G, edges, renumber=False)
 
 #    Collect graph's properties
     vertex_number = ops.number_of_vertices(G)
