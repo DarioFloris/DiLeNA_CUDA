@@ -11,13 +11,13 @@ import logger
 GPU_MEM_LIMIT = (18*1024**3) / 1e9
 
 def load_data(filepath):
-        df_edges = cudf.read_csv(filepath, delimiter=',', names=['src','dst','wt'],
-                                    dtype=['int32','int32','float64'])
-                                    
-        df_edges.drop_duplicates(subset=['src', 'dst'], inplace=True)
-        df_edges.dropna(axis=0, how='any', inplace=True)
+    df_edges = cudf.read_csv(filepath, delimiter=',', names=['src','dst','wt'],
+                                dtype=['int32','int32','float64'])
+                                
+    df_edges.drop_duplicates(subset=['src', 'dst'], inplace=True)
+    df_edges.dropna(axis=0, how='any', inplace=True)
 
-        return df_edges
+    return df_edges
 
 def build_graph(
     graph, 
@@ -36,18 +36,18 @@ def build_graph(
     return graph
 
 def nodes(graph):
-    vertices = graph.nodes().sort_values(ascending=True).to_cupy()
-    return vertices
+    res = graph.nodes().sort_values(ascending=True).to_cupy()
+    return res
 
 def number_of_vertices(graph):
-    vertices = graph.number_of_vertices()
+    res = graph.number_of_vertices()
     logger.log(f'Number of nodes calculated')
-    return vertices
+    return res
 
 def number_of_edges(graph):
-    edges = graph.number_of_edges()
+    res = graph.number_of_edges()
     logger.log(f'Number of edges calculated')
-    return edges
+    return res
 
 def degree(graph, mode='tot'):
 

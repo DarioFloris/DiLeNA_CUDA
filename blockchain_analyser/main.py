@@ -82,7 +82,7 @@ if __name__ == '__main__':
     analysis_ = Analysis(direction=True)
     G = analysis_.get_graph()
     edges = ops.load_data(path_to_file)
-    ops.build_graph(G, edges, renumber=False)
+    ops.build_graph(G, edges, renumber=True)
 
 #    Collect graph's properties
     vertex_number = ops.number_of_vertices(G)
@@ -122,12 +122,11 @@ if __name__ == '__main__':
     df_in_deg_mc = ops.degree(G_mc, 'in')
     df_out_deg_mc = ops.degree(G_mc, 'out')
 
-    vertices_mc = ops.nodes(G_mc)
-    
     df_tot_mc = ops.degree_distribution(vertex_number_mc, df_total_deg_mc, mode='tot')
     df_in_mc = ops.degree_distribution(vertex_number_mc, df_in_deg_mc, mode='in')
     df_out_mc = ops.degree_distribution(vertex_number_mc, df_out_deg_mc, mode='out')
 
+    vertices_mc = ops.nodes(G_mc)
 
     N = df_total_deg_mc['degree'].max()
     avg_cc_mc = ops.avg_clustering_coefficient(
