@@ -98,13 +98,11 @@ def lcc(nodes, edges, df_degree, recip, undirected, lcc_array):
 @cuda.jit
 def gnp_erdos_renyi(p, rng_states, M, N, matrix):
     tid = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
-    pos = 0
     if tid < M:
-        for _ in range(N):
+        for pos in range(N):
             rnd = xoroshiro128p_uniform_float32(rng_states, tid)
             if rnd <= p:
                 matrix[tid, pos] = 1
-            pos += 1
 
 
 @cuda.jit
