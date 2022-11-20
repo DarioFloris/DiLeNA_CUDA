@@ -50,35 +50,11 @@ def check_fname(dlt, fname, base_path='graphs/'):
     else:
         return full_path
 
+def main(dltname, filename):
+    dlt = check_dlt(dltname)
+    path_to_file = check_fname(dlt, filename)
 
-
-usage_msg = """ \
-
-Main usage => blockchain_analyser.py -s path_name -o path_name
-
-Legend
-    -s      source path to the data to be loaded
-    -o      destination path to save analysis results
-"""
-if __name__ == '__main__':
-#    if len(sys.argv) < 6 or '-h' in sys.argv or '--help' in sys.argv:
-#        sys.exit(f'{usage_msg}')
-#    if '-v' in sys.argv or '--version' in sys.argv:
-#        sys.exit(f'Blockchain_analyser.py {__version__}')
-#    if '-dlt' in sys.argv:
-#        index = sys.argv.index('-dlt')
-#        dlt_name = sys.argv[index+1]
-#    if '-n' in sys.argv:
-#        index = sys.argv.index('-n')
-#        file_name = sys.argv[index+1]
-
-    dlt_name = 'eth'
-    file_name = '2020-01-01_2020-01-01'
-    dlt = check_dlt(dlt_name)
-    path_to_file = check_fname(dlt, file_name)
-
-#    logger.logger_config('')
-#   Original network
+    #   Original network
     analysis_ = Analysis(direction=True)
     G = analysis_.get_graph()
     edges = ops.load_data(path_to_file)
@@ -197,5 +173,30 @@ if __name__ == '__main__':
         undirected=False
     )
     
+
+usage_msg = """ \
+
+Main usage => blockchain_analyser.py -s path_name -o path_name
+
+Legend
+    -s      source path to the data to be loaded
+    -o      destination path to save analysis results
+"""
+if __name__ == '__main__':
+#    if len(sys.argv) < 6 or '-h' in sys.argv or '--help' in sys.argv:
+#        sys.exit(f'{usage_msg}')
+#    if '-v' in sys.argv or '--version' in sys.argv:
+#        sys.exit(f'Blockchain_analyser.py {__version__}')
+#    if '-dlt' in sys.argv:
+#        index = sys.argv.index('-dlt')
+#        dlt_name = sys.argv[index+1]
+#    if '-n' in sys.argv:
+#        index = sys.argv.index('-n')
+#        file_name = sys.argv[index+1]
+    
+    dlt_name = 'eth'
+    file_name = '2020-01-01_2020-01-01'
+    main(dlt_name, file_name)
+
     #TODO logger file creation
     #TODO json file creation containing analysis results
