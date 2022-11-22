@@ -49,7 +49,7 @@ def reciprocal_count(A, nodes, src, dst, M, N, out):
 
 
 @cuda.jit
-def find_uv_edges(A, src, dst, M, N, undirected, out):
+def find_uv_edges(A, src, dst, M, N, out):
     ty = cuda.threadIdx.y; tx = cuda.threadIdx.x
     by = cuda.blockIdx.y; bx = cuda.blockIdx.x
     dy = cuda.blockDim.y; dx = cuda.blockDim.x
@@ -63,9 +63,7 @@ def find_uv_edges(A, src, dst, M, N, undirected, out):
             if v_node != -1 and u_node != v_node:
                 common = explore_edges(u_node, v_node, src, dst)
                 cuda.atomic.add(out, row, common)
-                if undirected:
-                    common = explore_edges(v_node, u_node, src, dst)
-                    cuda.atomic.add(out, row, common)
+                
 #            j += 1
 
 
@@ -81,7 +79,7 @@ def explore_edges(u, v, src, dst):
 
 
 @cuda.jit
-def lcc(nodes, edges, df_degree, recip, undirected, lcc_array):
+def lcc(nodes, edges, df_degree, undirected, lcc_array):
     tid = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
     if tid < len(nodes):
         lcc = 0.0
@@ -89,9 +87,9 @@ def lcc(nodes, edges, df_degree, recip, undirected, lcc_array):
         if item > 0:
             node_deg = df_degree[tid]
             if undirected:
-                lcc = item / (node_deg * (node_deg - 1))
+                lcc = 2 * (item / (node_deg * (node_deg - 1)))
             else:
-                lcc = item / (node_deg * (node_deg - 1) - (2 * recip[tid]))
+                lcc = item / (node_deg * (node_deg - 1))
 
         cuda.atomic.add(lcc_array, 0, lcc)
 

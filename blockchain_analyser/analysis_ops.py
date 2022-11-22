@@ -35,6 +35,11 @@ def build_graph(
     logger.log(f'Building graph completed')
     return graph
 
+def view_edgelist(graph):
+    edges = graph.view_edge_list()
+    return edges
+
+    
 def nodes(graph):
     res = graph.nodes().sort_values(ascending=True).to_cupy()
     return res
@@ -159,9 +164,9 @@ def avg_clustering_coefficient(
 
         start_ev.record()
         CUDA.adj_list[blockspergrid, threadsperblock](nodes, src, dst, undirected, matrix)
-        CUDA.reciprocal_count[blockspergrid_2D, threadsperblock_2D](matrix, nodes, src, dst, M, N, reciprocal)
-        CUDA.find_uv_edges[blockspergrid_2D, threadsperblock_2D](matrix, src, dst, M, N, undirected, edgespernode)       
-        CUDA.lcc[blockspergrid, threadsperblock](nodes, edgespernode, df_degree, reciprocal, undirected, local_ccs)
+#        CUDA.reciprocal_count[blockspergrid_2D, threadsperblock_2D](matrix, nodes, src, dst, M, N, reciprocal)
+        CUDA.find_uv_edges[blockspergrid_2D, threadsperblock_2D](matrix, src, dst, M, N, edgespernode)       
+        CUDA.lcc[blockspergrid, threadsperblock](nodes, edgespernode, df_degree, undirected, local_ccs)
         stop_ev.record()
         cuda.synchronize()
 

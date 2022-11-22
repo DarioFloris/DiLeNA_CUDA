@@ -22,7 +22,8 @@ import sys, os
 from analysis import Analysis
 import analysis_ops as ops
 import logger
-__version__ = '0.4.0'
+
+__version__ = '1.0'
 
 base_path = '../graphs/'
 
@@ -50,6 +51,8 @@ def check_fname(dlt, fname, base_path='graphs/'):
     else:
         return full_path
 
+
+
 def main(dltname, filename):
     dlt = check_dlt(dltname)
     path_to_file = check_fname(dlt, filename)
@@ -57,10 +60,69 @@ def main(dltname, filename):
     #   Original network
     analysis_ = Analysis(direction=True)
     G = analysis_.get_graph()
-    edges = ops.load_data(path_to_file)
-    ops.build_graph(G, edges, renumber=True)
+    edges_ = ops.load_data(path_to_file)
+    ops.build_graph(G, edges_, renumber=True)
 
 #    Collect graph's properties
+    vertex_number_ = ops.number_of_vertices(G)
+    edges_number_ = ops.number_of_edges(G)
+
+    df_total_deg = ops.degree(G, 'tot')
+    df_in_deg = ops.degree(G, 'in')
+    df_out_deg = ops.degree(G, 'out')
+
+    df_tot = ops.degree_distribution(vertex_number_, df_total_deg, mode='tot')
+    df_in = ops.degree_distribution(vertex_number_, df_in_deg, mode='in')
+    df_out = ops.degree_distribution(vertex_number_, df_out_deg, mode='out')
+
+#    compute_shortest_path_length(G, G.nodes().to_cupy())
+
+#   AVG_CC for directed graphs:
+#   - N = total_deg['degree'] 
+#   - df_out_deg['degree]
+
+    N = df_out_deg['degree'].max()
+    avg_cc = ops.avg_clustering_coefficient(
+        vertex_number_, 
+        edges_['src'], 
+        edges_['dst'], 
+        df_out_deg['degree'], 
+        N, 
+        undirected=False
+    )
+
+#   AVG_CC for undirected graphs:
+    """
+    FIX ME:
+
+    Undirected graph needs the weight column list to be dropped before
+    the next instructions take place
+
+    G_undirected = G.to_undirected()
+    edge_undi = ops.view_edgelist(G_undirected)
+
+    f = ops.number_of_edges(G_undirected)
+    v_undi = ops.number_of_vertices(G_undirected)
+    e_undi = ops.number_of_edges(G_undirected)
+    df_out_undi = ops.degree(G_undirected, 'out')
+    N_undi = df_out_undi['degree'].max()
+    avg_ = ops.avg_clustering_coefficient(
+        v_undi,
+        edge_undi['src'],
+        edge_undi['dst'],
+        df_out_undi['degree'],
+        N_undi,
+        undirected=True
+    )
+    """
+
+#   MAIN COMPONENT
+    edges = ops.build_main_weakly_connected_component_edges(G, edges_)
+    analysis_mc = Analysis(direction=True)
+    G = analysis_mc.get_graph()
+    ops.build_graph(G, edges, renumber=True)
+
+#    Collect main component's properties
     vertex_number = ops.number_of_vertices(G)
     edges_number = ops.number_of_edges(G)
 
@@ -72,107 +134,78 @@ def main(dltname, filename):
     df_in = ops.degree_distribution(vertex_number, df_in_deg, mode='in')
     df_out = ops.degree_distribution(vertex_number, df_out_deg, mode='out')
 
-#    compute_shortest_path_length(G, G.nodes().to_cupy())
+    vertices = ops.nodes(G)
 
-    N = df_total_deg['degree'].max()
+    N = df_out_deg['degree'].max()
     avg_cc = ops.avg_clustering_coefficient(
         vertex_number, 
         edges['src'], 
         edges['dst'], 
-        df_total_deg['degree'], 
-        N, 
-        undirected=False
-    )
-
-#   MAIN COMPONENT
-    edges_mc = ops.build_main_weakly_connected_component_edges(G, edges)
-    analysis_mc = Analysis(direction=True)
-    G_mc = analysis_mc.get_graph()
-    ops.build_graph(G_mc, edges_mc, renumber=True)
-
-#    Collect main component's properties
-    vertex_number_mc = ops.number_of_vertices(G_mc)
-    edges_number_mc = ops.number_of_edges(G_mc)
-
-    df_total_deg_mc = ops.degree(G_mc, 'tot')
-    df_in_deg_mc = ops.degree(G_mc, 'in')
-    df_out_deg_mc = ops.degree(G_mc, 'out')
-
-    df_tot_mc = ops.degree_distribution(vertex_number_mc, df_total_deg_mc, mode='tot')
-    df_in_mc = ops.degree_distribution(vertex_number_mc, df_in_deg_mc, mode='in')
-    df_out_mc = ops.degree_distribution(vertex_number_mc, df_out_deg_mc, mode='out')
-
-    vertices_mc = ops.nodes(G_mc)
-
-    N = df_total_deg_mc['degree'].max()
-    avg_cc_mc = ops.avg_clustering_coefficient(
-        vertex_number_mc, 
-        edges_mc['src'], 
-        edges_mc['dst'], 
-        df_total_deg_mc['degree'], 
+        df_out_deg['degree'], 
         N,
-        nodes_cp=vertices_mc, 
+        nodes_cp=vertices, 
         undirected=False
     )
 
 
 #   RANDOM GRAPH
-    edges_rnd = ops.random_graph_generator(vertex_number, edges_number)
+    edges = ops.random_graph_generator(vertex_number_, edges_number_)
     analysis_rnd = Analysis(direction=True)
-    G_rnd = analysis_rnd.get_graph()
-    ops.build_graph(G_rnd, edges_rnd, edge_attr=None, renumber=False)
+    G = analysis_rnd.get_graph()
+    ops.build_graph(G, edges, edge_attr=None, renumber=False)
     
 #   Collect Random Graph's properties
-    vertex_number_rnd = ops.number_of_vertices(G_rnd)
-    edges_number_rnd = ops.number_of_edges(G_rnd)
+    vertex_number = ops.number_of_vertices(G)
+    edges_number = ops.number_of_edges(G)
 
-    df_tot_deg_rnd = ops.degree(G_rnd, 'tot')
-    df_in_deg_rnd = ops.degree(G_rnd, 'in')
-    df_out_deg_rnd = ops.degree(G_rnd, 'out')
+    df_tot_deg = ops.degree(G, 'tot')
+    df_in_deg = ops.degree(G, 'in')
+    df_out_deg = ops.degree(G, 'out')
 
-    df_tot_rnd = ops.degree_distribution(vertex_number_rnd, df_tot_deg_rnd, mode='tot')
-    df_in_rnd = ops.degree_distribution(vertex_number_rnd, df_in_deg_rnd, mode='in')
-    df_out_rnd = ops.degree_distribution(vertex_number_rnd, df_out_deg_rnd, mode='out')
+    df_tot = ops.degree_distribution(vertex_number, df_tot_deg, mode='tot')
+    df_in = ops.degree_distribution(vertex_number, df_in_deg, mode='in')
+    df_out = ops.degree_distribution(vertex_number, df_out_deg, mode='out')
 
-    N = df_tot_deg_rnd['degree'].max()
-    avg_cc_rnd = ops.avg_clustering_coefficient(
-        vertex_number_rnd, 
-        edges_rnd['src'], 
-        edges_rnd['dst'], 
-        df_tot_deg_rnd['degree'], 
+    N = df_out_deg['degree'].max()
+    avg_cc = ops.avg_clustering_coefficient(
+        vertex_number, 
+        edges['src'], 
+        edges['dst'], 
+        df_out_deg['degree'], 
         N, 
         undirected=False
     ) 
 
 #   RANDOM GRAPH's MAIN COMPONENT
-    edges_rnd_mc = ops.build_main_weakly_connected_component_edges(G_rnd, edges_rnd)
+    edges = ops.build_main_weakly_connected_component_edges(G, edges)
     analysis_rnd_mc = Analysis(direction=True)
-    G_rnd_mc = analysis_rnd_mc.get_graph()
-    ops.build_graph(G_rnd_mc, edges_rnd_mc, edge_attr=None, renumber=True)
+    G = analysis_rnd_mc.get_graph()
+    ops.build_graph(G, edges, edge_attr=None, renumber=True)
 
-    vertex_number_rnd_mc = ops.number_of_vertices(G_rnd_mc)
-    edges_number_rnd_mc = ops.number_of_edges(G_rnd_mc)
+    vertex_number = ops.number_of_vertices(G)
+    edges_number = ops.number_of_edges(G)
 
-    df_total_deg_rnd_mc = ops.degree(G_rnd_mc, 'tot')
-    df_in_deg_rnd_mc = ops.degree(G_rnd_mc, 'in')
-    df_out_deg_rnd_mc = ops.degree(G_rnd_mc, 'out')
+    df_total_deg = ops.degree(G, 'tot')
+    df_in_deg = ops.degree(G, 'in')
+    df_out_deg = ops.degree(G, 'out')
 
-    vertices_rnd_mc = ops.nodes(G_rnd_mc)
-    df_tot_rnd_mc = ops.degree_distribution(vertex_number_rnd_mc, df_total_deg_rnd_mc, mode='tot')
-    df_in_rnd_mc = ops.degree_distribution(vertex_number_rnd_mc, df_in_deg_rnd_mc, mode='in')
-    df_out_rnd_mc = ops.degree_distribution(vertex_number_rnd_mc, df_out_deg_rnd_mc, mode='out')
+    vertices = ops.nodes(G)
+    df_tot = ops.degree_distribution(vertex_number, df_total_deg, mode='tot')
+    df_in = ops.degree_distribution(vertex_number, df_in_deg, mode='in')
+    df_out = ops.degree_distribution(vertex_number, df_out_deg, mode='out')
 
-    N = df_total_deg_rnd_mc['degree'].max()
-    avg_cc_rnd_mc = ops.avg_clustering_coefficient(
-        vertex_number_rnd_mc, 
-        edges_rnd_mc['src'], 
-        edges_rnd_mc['dst'],
-        df_total_deg_rnd_mc['degree'],
+    N = df_out_deg['degree'].max()
+    avg_cc = ops.avg_clustering_coefficient(
+        vertex_number, 
+        edges['src'], 
+        edges['dst'],
+        df_out_deg['degree'],
         N,
-        nodes_cp=vertices_rnd_mc,
+        nodes_cp=vertices,
         undirected=False
     )
     
+    print("Done")
 
 usage_msg = """ \
 
