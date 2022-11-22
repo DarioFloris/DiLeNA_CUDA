@@ -82,7 +82,7 @@ def main(dltname, filename):
 #   - df_out_deg['degree]
 
     N = df_out_deg['degree'].max()
-    avg_cc = ops.avg_clustering_coefficient(
+    avg_cc_ = ops.avg_clustering_coefficient(
         vertex_number_, 
         edges_['src'], 
         edges_['dst'], 
@@ -137,7 +137,7 @@ def main(dltname, filename):
     vertices = ops.nodes(G)
 
     N = df_out_deg['degree'].max()
-    avg_cc = ops.avg_clustering_coefficient(
+    avg_cc_mc = ops.avg_clustering_coefficient(
         vertex_number, 
         edges['src'], 
         edges['dst'], 
@@ -167,7 +167,7 @@ def main(dltname, filename):
     df_out = ops.degree_distribution(vertex_number, df_out_deg, mode='out')
 
     N = df_out_deg['degree'].max()
-    avg_cc = ops.avg_clustering_coefficient(
+    avg_cc_rnd = ops.avg_clustering_coefficient(
         vertex_number, 
         edges['src'], 
         edges['dst'], 
@@ -195,7 +195,7 @@ def main(dltname, filename):
     df_out = ops.degree_distribution(vertex_number, df_out_deg, mode='out')
 
     N = df_out_deg['degree'].max()
-    avg_cc = ops.avg_clustering_coefficient(
+    avg_cc_rnd_mc = ops.avg_clustering_coefficient(
         vertex_number, 
         edges['src'], 
         edges['dst'],

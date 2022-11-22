@@ -1,12 +1,14 @@
-import cuda_ops as CUDA
-from math import ceil
-import cupy as cp
-import cudf
-from cugraph import Graph, connected_components
-from numba import cuda
 from numba.cuda.random import create_xoroshiro128p_states
+from cugraph import Graph, connected_components
+import cuda_ops as CUDA
+from numba import cuda
+from math import ceil
 import numpy as np
+import cupy as cp
 import logger
+import cudf
+import sys
+
 
 GPU_MEM_LIMIT = (18*1024**3) / 1e9
 
@@ -135,7 +137,8 @@ def avg_clustering_coefficient(
     undirected=False
 
 ) -> float:
-
+    if undirected:
+        sys.exit(f'Unidrected parameter is not supported')
 
     local_ccs = cp.zeros((1,), dtype='float32')
     M = compute_bounds(n, N, cp.dtype(cp.int32).itemsize)
