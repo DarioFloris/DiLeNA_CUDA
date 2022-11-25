@@ -1,0 +1,50 @@
+[2022-11-25 10:41:11] Building graph completed
+[2022-11-25 10:41:11] Number of nodes calculated
+[2022-11-25 10:41:11] Number of edges calculated
+[2022-11-25 10:41:11] "tot" degree calculated
+[2022-11-25 10:41:11] "in" degree calculated
+[2022-11-25 10:41:11] "out" degree calculated
+[2022-11-25 10:41:11] "tot" degree distribution calculated
+[2022-11-25 10:41:11] "in" degree distribution calculated
+[2022-11-25 10:41:11] "out" degree distribution calculated
+[2022-11-25 10:42:59] Average clustering coefficient calculcated. 0.009038214065540742
+[2022-11-25 10:42:59] Elapsed time: 1.786876 minutes
+[2022-11-25 10:42:59] Main component's edges calculated
+[2022-11-25 10:42:59] Building graph completed
+[2022-11-25 10:42:59] Number of nodes calculated
+[2022-11-25 10:42:59] Number of edges calculated
+[2022-11-25 10:42:59] "tot" degree calculated
+[2022-11-25 10:42:59] "in" degree calculated
+[2022-11-25 10:42:59] "out" degree calculated
+[2022-11-25 10:42:59] "tot" degree distribution calculated
+[2022-11-25 10:42:59] "in" degree distribution calculated
+[2022-11-25 10:42:59] "out" degree distribution calculated
+[2022-11-25 10:44:40] Average clustering coefficient calculcated. 0.009530465319666488
+[2022-11-25 10:44:40] Elapsed time: 1.681636 minutes
+[2022-11-25 10:44:40] Number of nodes calculated
+[2022-11-25 10:44:40] Number of edges calculated
+[2022-11-25 10:44:40] Generating random graph with ER model...
+[2022-11-25 10:46:24] Random graph's edges list calculated
+[2022-11-25 10:46:24] Building graph completed
+[2022-11-25 10:46:24] Number of nodes calculated
+[2022-11-25 10:46:24] Number of edges calculated
+[2022-11-25 10:46:24] "tot" degree calculated
+[2022-11-25 10:46:24] "in" degree calculated
+[2022-11-25 10:46:24] "out" degree calculated
+[2022-11-25 10:46:24] "tot" degree distribution calculated
+[2022-11-25 10:46:24] "in" degree distribution calculated
+[2022-11-25 10:46:24] "out" degree distribution calculated
+[2022-11-25 10:46:26] Average clustering coefficient calculcated. 2.511064377412976e-05
+[2022-11-25 10:46:26] Elapsed time: 0.033230 minutes
+[2022-11-25 10:46:26] Main component's edges calculated
+[2022-11-25 10:46:26] Building graph completed
+[2022-11-25 10:46:26] Number of nodes calculated
+[2022-11-25 10:46:26] Number of edges calculated
+[2022-11-25 10:46:26] "tot" degree calculated
+[2022-11-25 10:46:26] "in" degree calculated
+[2022-11-25 10:46:26] "out" degree calculated
+[2022-11-25 10:46:26] "tot" degree distribution calculated
+[2022-11-25 10:46:26] "in" degree distribution calculated
+[2022-11-25 10:46:26] "out" degree distribution calculated
+[2022-11-25 10:46:27] Average clustering coefficient calculcated. 3.4432593893379474e-05
+[2022-11-25 10:46:27] Elapsed time: 0.025036 minutes
