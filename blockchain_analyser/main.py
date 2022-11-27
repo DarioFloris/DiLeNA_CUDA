@@ -93,7 +93,7 @@ def main(dltname, filename):
     edges_ = ops.load_data(path_to_file)
     ops.build_graph(G, edges_, renumber=False)
     compute_graph(G, edges_)
-
+    
 #   MAIN COMPONENT
     edges = ops.build_main_weakly_connected_component_edges(G, edges_)
     analysis_mc = Analysis(direction=True)
