@@ -1,9 +1,10 @@
 blockchain_explorer/__pycache__/
 blockchain_analyser/__pycache__/
 graphs/
+notebooks/
 .vscode
 blockchain_explorer/.env
-notebooks/dask_CPU.ipynb
+
 
 
 git_instructions.txt
