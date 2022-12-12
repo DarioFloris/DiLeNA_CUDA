@@ -347,8 +347,8 @@ def avg_clustering_coefficient(
         start, stop, M = _init_cc(n, M, i, leftovers)
         nodes = cp.arange(start, stop, 1)
         if nodes_cp is not None: nodes = nodes_cp[start : stop]
-        matrix = cp.empty((M, N), dtype='int32')
-        matrix.fill(-1)
+        matrix = cp.ones((M, N), dtype='int32')
+        matrix = cp.negative(matrix)
         edgespernode = cp.zeros(M, dtype='int32')
 #        reciprocal = cp.zeros(M, dtype='int32')
         start_ev = cuda.event()
