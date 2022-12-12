@@ -1,12 +1,8 @@
 blockchain_explorer/__pycache__/
 blockchain_analyser/__pycache__/
 graphs/
-notebooks/
 logs/
 .vscode
 blockchain_explorer/.env
-
-
-
 git_instructions.txt
 
