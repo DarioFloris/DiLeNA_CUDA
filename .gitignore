@@ -1,7 +1,7 @@
 blockchain_explorer/__pycache__/
 blockchain_analyser/__pycache__/
 graphs/*
-!graphs/ethereum/2020-01-01_2020-01-01/
+!graphs/ethereum/2020-01-01_2020-01-01
 notebooks/
 logs/
 .vscode
